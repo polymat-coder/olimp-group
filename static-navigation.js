@@ -1,8 +1,6 @@
-document.addEventListener(
-  "click",
-  (event) => {
+const navigateToStaticPage = (event) => {
     if (
-      event.button !== 0 ||
+      (typeof event.button === "number" && event.button !== 0) ||
       event.metaKey ||
       event.ctrlKey ||
       event.shiftKey ||
@@ -11,7 +9,12 @@ document.addEventListener(
       return;
     }
 
-    const link = event.target.closest("a[href]");
+    const link =
+      event.currentTarget instanceof HTMLAnchorElement
+        ? event.currentTarget
+        : event.target instanceof Element
+          ? event.target.closest("a[href]")
+          : null;
     if (!link || link.target === "_blank" || link.hasAttribute("download")) {
       return;
     }
@@ -25,8 +28,26 @@ document.addEventListener(
       event.stopImmediatePropagation();
       window.location.assign(destination.href);
     }
-  },
-  true,
-);
+};
+
+const bindStaticLinks = () => {
+  document.querySelectorAll("a[href]").forEach((link) => {
+    if (link.dataset.staticNavigationBound === "true") return;
+
+    const destination = new URL(link.href, window.location.href);
+    if (
+      destination.origin === window.location.origin &&
+      destination.pathname.endsWith(".html")
+    ) {
+      link.dataset.staticNavigationBound = "true";
+      link.addEventListener("click", navigateToStaticPage, true);
+    }
+  });
+};
+
+window.addEventListener("click", navigateToStaticPage, true);
+bindStaticLinks();
+window.addEventListener("load", bindStaticLinks, { once: true });
 
 window.__staticNavigationReady = true;
+document.documentElement.dataset.staticNavigationReady = "true";

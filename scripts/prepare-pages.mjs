@@ -31,11 +31,18 @@ for (const file of walk(root)) {
 
   if (
     path.extname(file) === ".html" &&
-    !content.includes('src="static-navigation.js"')
+    !content.includes('src="static-navigation.js')
   ) {
     content = content.replace(
       "</body>",
       '<script src="static-navigation.js"></script></body>',
+    );
+  }
+
+  if (path.extname(file) === ".html") {
+    content = content.replace(
+      /src="static-navigation\.js(?:\?v=\d+)?"/,
+      'src="static-navigation.js?v=5"',
     );
   }
 
