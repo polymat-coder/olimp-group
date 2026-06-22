@@ -3,6 +3,16 @@ import path from "node:path";
 
 const root = path.resolve(import.meta.dirname, "..");
 const textExtensions = new Set([".html", ".js", ".json", ".css"]);
+const reviewChunkOld =
+  "_next/static/chunks/app/reviews/page-ab6c9ef3709db77c.js";
+const reviewChunkNew =
+  "_next/static/chunks/app/reviews/page-approved-cars-730f3ed.js";
+
+const reviewChunkOldPath = path.join(root, reviewChunkOld);
+const reviewChunkNewPath = path.join(root, reviewChunkNew);
+if (fs.existsSync(reviewChunkOldPath) && !fs.existsSync(reviewChunkNewPath)) {
+  fs.renameSync(reviewChunkOldPath, reviewChunkNewPath);
+}
 
 function walk(directory) {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -18,16 +28,36 @@ for (const file of walk(root)) {
   const original = content;
 
   content = content
+    .replaceAll(reviewChunkOld, reviewChunkNew)
+    .replaceAll(
+      "static/chunks/app/reviews/page-ab6c9ef3709db77c.js",
+      "static/chunks/app/reviews/page-approved-cars-730f3ed.js",
+    )
     .replaceAll('"/avto-car-motors.ru/"', '"index.html"')
     .replaceAll('\\"/avto-car-motors.ru/\\"', '\\"index.html\\"')
-    .replaceAll("/avto-car-motors.ru/", "")
+    .replaceAll('"/avto-car-motors.ru/', '"')
+    .replaceAll('\\"/avto-car-motors.ru/', '\\"')
     .replaceAll("/_next/", "_next/")
     .replaceAll(
       "https://halalhalalvov-cloud.github.io/avto-car-motors.ru",
       "https://polymat-coder.github.io/olimp-group",
     )
+    .replaceAll(
+      "https://halalhalalvov-cloud.github.ioavto.jpg",
+      "https://polymat-coder.github.io/olimp-group/avto.jpg",
+    )
+    .replaceAll("https:/logo.ico", "icon.ico")
+    .replaceAll("https:/favicon.ico", "icon.ico")
     .replaceAll("https://avto-car-motors.ru/logo.ico", "icon.ico")
-    .replaceAll("https://avto-car-motors.ru/favicon.ico", "icon.ico");
+    .replaceAll("https://avto-car-motors.ru/favicon.ico", "icon.ico")
+    .replaceAll('"/favicon.ico"', '"icon.ico"')
+    .replaceAll('\\"/favicon.ico\\"', '\\"icon.ico\\"')
+    .replaceAll('"/logo.ico"', '"icon.ico"')
+    .replaceAll('\\"/logo.ico\\"', '\\"icon.ico\\"')
+    .replaceAll('"/logo.jpg"', '"logo.jpg"')
+    .replaceAll('\\"/logo.jpg\\"', '\\"logo.jpg\\"')
+    .replaceAll('"/manifest.json"', '"manifest.json"')
+    .replaceAll('\\"/manifest.json\\"', '\\"manifest.json\\"');
 
   if (
     path.extname(file) === ".html" &&
